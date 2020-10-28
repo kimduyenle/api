@@ -12,16 +12,31 @@ module.exports = (sequelize, DataTypes) => {
       Product.belongsTo(models.User, {
         foreignKey: 'userId',
         as: 'user'
-      })
+      });
+      Product.belongsTo(models.Category, {
+        foreignKey: 'categoryId',
+        as: 'category'
+      });
+      Product.hasMany(models.OrderDetail, {
+        foreignKey: 'productId',
+        as: 'orderDetails'
+      });
+      // Product.hasMany(models.Cart, {
+      //   foreignKey: 'productId',
+      //   as: 'cart'
+      // })
     }
   }
   Product.init(
     {
       userId: DataTypes.INTEGER,
+      categoryId: DataTypes.INTEGER,
       name: DataTypes.STRING,
-      description: DataTypes.STRING,
+      description: DataTypes.TEXT,
       quantity: DataTypes.INTEGER,
-      price: DataTypes.INTEGER
+      price: DataTypes.INTEGER,
+      status: DataTypes.BOOLEAN,
+      isDeleted: DataTypes.BOOLEAN
     },
     {
       sequelize,
