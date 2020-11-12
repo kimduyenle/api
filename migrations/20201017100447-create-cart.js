@@ -16,17 +16,6 @@ module.exports = {
           key: 'id'
         }
       },
-      productId: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Products',
-          key: 'id'
-        }
-      },
-      quantity: {
-        type: Sequelize.INTEGER
-      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

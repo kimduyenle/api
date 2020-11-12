@@ -13,8 +13,8 @@ router.get('/:id', cartController.getCart);
 
 router.post('/', cartController.createCart);
 
-router.put('/:productId', cartController.updateCartQuantity);
+// router.put('/:productId', cartController.updateCartQuantity);
 
-router.put('/delete/:productId', cartController.deleteCart);
+router.put('/delete/:cartId', cartController.deleteCart);
 
 module.exports = router;

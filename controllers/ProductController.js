@@ -15,7 +15,11 @@ class ProductController {
           {
             model: models.Category,
             as: 'category',
-					}
+          },
+          {
+            model: models.Image,
+            as: 'images'
+          }
 				],
       });
       if (!products) {
@@ -41,7 +45,11 @@ class ProductController {
           {
             model: models.Category,
             as: 'category',
-					}
+          },
+          {
+            model: models.Image,
+            as: 'images'
+          }
 				],
       });
       if (!products) {
@@ -74,7 +82,11 @@ class ProductController {
           {
             model: models.Category,
             as: 'category',
-					}
+          },
+          {
+            model: models.Image,
+            as: 'images'
+          }
 				],
       });
       if (!products) {
@@ -105,7 +117,11 @@ class ProductController {
           {
             model: models.Category,
             as: 'category',
-					}
+          },
+          {
+            model: models.Image,
+            as: 'images'
+          }
 				],
       });
       if (!products) {
@@ -134,7 +150,11 @@ class ProductController {
           {
             model: models.Category,
             as: 'category',
-					}
+          },
+          {
+            model: models.Image,
+            as: 'images'
+          }
 				],
       })
       if (!product) {

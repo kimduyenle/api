@@ -1,27 +1,27 @@
 'use strict';
 
 const { Product } = require('../models')
-const { Order } = require('../models')
+const { Cart } = require('../models')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const products = await Product.findAll();
-    const orders = await Order.findAll();
-    const orderDetails = [];
-    for (let index = 1; index <= 30; index++) {
-      orderDetails.push({
+    const carts = await Cart.findAll();
+    const cartDetails = [];
+    for (let index = 1; index <= 3; index++) {
+      cartDetails.push({
         productId:
           products[Math.floor(Math.random() * (products.length - 1 - 0 + 1) + 0)].id,
-        orderId:
-          orders[Math.floor(Math.random() * (orders.length - 1 - 0 + 1) + 0)].id,
+        cartId:
+          carts[Math.floor(Math.random() * (carts.length - 1 - 0 + 1) + 0)].id,
         quantity: 2,
         price: 20,
         createdAt: new Date(),
         updatedAt: new Date()
       })
     }
-    return queryInterface.bulkInsert('OrderDetails', orderDetails, {})
+    return queryInterface.bulkInsert('CartDetails', cartDetails, {})
   },
   down: (queryInterface, Sequelize) =>
-    queryInterface.bulkDelete('OrderDetails', null, {})
+    queryInterface.bulkDelete('CartDetails', null, {})
 };

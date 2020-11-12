@@ -19,6 +19,12 @@ class OrderController {
           {
             model: models.OrderDetail,
             as: 'orderDetails',
+            include: [
+              {
+                model: models.Product,
+                as: 'product',
+              }
+            ]
           },
         ],
       });
@@ -154,6 +160,22 @@ class OrderController {
           {
             model: models.OrderDetail,
             as: 'orderDetails',
+            include: [
+              {
+                model: models.Product,
+                as: 'product',
+                include: [
+                  {
+                    model: models.User,
+                    as: 'user',
+                  },
+                  {
+                    model: models.Image,
+                    as: 'images',
+                  }
+                ]
+              }
+            ]
           },
 				],
       })
@@ -161,8 +183,8 @@ class OrderController {
         return res.status(200).json('Order not found');
       }
 			const data = {};
-			order.dataValues.user = order.user.username;
-			order.dataValues.status = order.status.name;
+			// order.dataValues.user = order.user.username;
+			// order.dataValues.status = order.status.name;
       data.order = order;
       return res.status(200).json(data);
     } catch (error) {
@@ -187,6 +209,12 @@ class OrderController {
       }
 
       const data = req.body;
+      if(!req.body.deliveryPhoneNumber) {
+        data.deliveryPhoneNumber = user.phoneNumber;
+      }
+      if(!req.body.deliveryAddress) {
+        data.deliveryAddress = user.address;
+      }
       data.userId = userId;
       data.statusId = status.id;
 

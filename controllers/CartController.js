@@ -13,9 +13,9 @@ class CartController {
             as: 'user',
           },
           {
-            model: models.Product,
-            as: 'product',
-            }
+            model: models.CartDetail,
+            as: 'cartDetails',
+          }
         ],
       });
       if (!carts) {
@@ -39,9 +39,9 @@ class CartController {
               as: 'user',
             },
             {
-              model: models.Product,
-              as: 'product',
-              }
+              model: models.CartDetail,
+              as: 'cartDetails',
+            }
           ],
       });
       if (!carts) {
@@ -55,7 +55,7 @@ class CartController {
     }
   }
 
-  async getCartsOfUser(req, res) {
+  async getCartOfUser(req, res) {
     try {
       const userFromToken = await getUserInfo(req);
       const userId = userFromToken.id;
@@ -63,7 +63,7 @@ class CartController {
       if (!user) {
         return res.status(400).json('User not found');
       }
-      const carts = await models.Cart.findAll({
+      const cart = await models.Cart.findOne({
         where: { userId: userId, isDeleted: false },
         include: [
 					{
@@ -71,16 +71,16 @@ class CartController {
 						as: 'user',
 					},
 					{
-						model: models.Product,
-						as: 'product',
-						}
+            model: models.CartDetail,
+            as: 'cartDetails',
+          }
 				],
       });
-      if (!carts) {
+      if (!cart) {
         return res.status(200).json('Cart not found');
       }
       const data = {};
-      data.carts = carts;
+      data.cart = cart;
       return res.status(200).json(data);
     } catch (error) {
       return res.status(400).json(error.message)
@@ -131,9 +131,9 @@ class CartController {
 						as: 'user',
 					},
 					{
-						model: models.Product,
-						as: 'product',
-						}
+            model: models.CartDetail,
+            as: 'cartDetails',
+          }
 				],
       })
       if (!cart) {
@@ -157,12 +157,6 @@ class CartController {
       if (!user) {
         return res.status(400).json('User not found');
       }
-      const product = await models.Product.findOne({
-        where: { id: Number(req.body.productId), isDeleted: false }
-      });
-      if (!product) {
-        return res.status(400).json('Product not found');
-      }
 
       const data = req.body;
 			data.userId = userId;
@@ -176,62 +170,55 @@ class CartController {
     }
   }
 
-  async updateCartQuantity(req, res) {
-    try {
-      // get userId trong token
-      const userFromToken = await getUserInfo(req);
-      const userId = userFromToken.id;
-      const user = await models.User.findOne({ where: { id: userId, isDeleted: false } });
-      if (!user) {
-        return res.status(400).json('User not found');
-      }
+  // async updateCartQuantity(req, res) {
+  //   try {
+  //     // get userId trong token
+  //     const userFromToken = await getUserInfo(req);
+  //     const userId = userFromToken.id;
+  //     const user = await models.User.findOne({ where: { id: userId, isDeleted: false } });
+  //     if (!user) {
+  //       return res.status(400).json('User not found');
+  //     }
       
-      const product = await models.Cart.findOne({
-        where: {
-					userId: userId,
-					productId: Number(req.params.productId),
-					isDeleted: false,
-        },
-        include: [
-					{
-						model: models.User,
-						as: 'user',
-					},
-					{
-						model: models.Product,
-						as: 'product',
-						}
-				],
-      });
-      product.quantity = req.body.quantity;
+  //     const product = await models.Cart.findOne({
+  //       where: {
+	// 				userId: userId,
+	// 				productId: Number(req.params.productId),
+	// 				isDeleted: false,
+  //       },
+  //       include: [
+	// 				{
+	// 					model: models.User,
+	// 					as: 'user',
+	// 				},
+	// 				{
+	// 					model: models.Product,
+	// 					as: 'product',
+	// 					}
+	// 			],
+  //     });
+  //     product.quantity = req.body.quantity;
 
-      if (product.save()) {
-        return res.status(200).json(product);        
-      }
-      return res.status(400).json('Error');
-    } catch (error) {
-      return res.status(400).json(error.message);
-    }
-	}
+  //     if (product.save()) {
+  //       return res.status(200).json(product);        
+  //     }
+  //     return res.status(400).json('Error');
+  //   } catch (error) {
+  //     return res.status(400).json(error.message);
+  //   }
+	// }
 	
 	async deleteCart(req, res) {
     try {
-			const userFromToken = await getUserInfo(req);
-      const userId = userFromToken.id;
-      const user = await models.User.findOne({ where: { id: userId, isDeleted: false } });
-      if (!user) {
-        return res.status(400).json('User not found');
-      }
-      const product = await models.Cart.findOne({
+      const cart = await models.Cart.findOne({
         where: {
-					userId: userId,
-          productId: Number(req.params.productId),
+          id: Number(req.params.cartId),
         },
       });
-      product.isDeleted = true;
+      cart.isDeleted = true;
 
-      if (product.save()) {
-        return res.status(200).json(product);        
+      if (cart.save()) {
+        return res.status(200).json(cart);        
       }
       return res.status(400).json('Error');
     } catch (error) {

@@ -4,6 +4,7 @@ const models = require('../models')
 const bcrypt = require('bcrypt');
 const config = require('../config/app');
 const auth = require('../utils/auth');
+const { bucket } =  require('../utils/uploadImage');
 class UserController {
   async getProfile(req, res) {
     try {
@@ -35,6 +36,7 @@ class UserController {
   async getAllUsers(req, res) {
     try {
       const users = await models.User.findAll({
+        where: {isDeleted: false},
         include: [{
           model: models.Role,
           as: 'role',
@@ -101,6 +103,59 @@ class UserController {
     }
   }
 
+  async uploadAvatar(req, res, next) {
+    try {
+        if (!req.file) {
+          res.status(400).json('Error, could not upload file');
+          return;
+        }
+
+        const user = await models.User.findOne({
+            where: { id: Number(req.params.id), isDeleted: false }
+        });
+        if (!user) {
+            return res.status(400).json('User not found');
+        }
+    
+        // Create new blob in the bucket referencing the file
+        const blob = bucket.file(req.file.originalname);
+    
+        // Create writable stream and specifying file mimetype
+        const blobWriter = blob.createWriteStream({
+          metadata: {
+            contentType: req.file.mimetype,
+          },
+        });
+    
+        blobWriter.on('error', (err) => next(err));
+    
+        blobWriter.on('finish', async () => {
+          // Assembling public URL for accessing the file via HTTP
+          const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
+            bucket.name
+          }/o/${encodeURI(blob.name)}?alt=media`;
+
+          
+          user.avatar = publicUrl;
+          if (user.save()) {
+            return res.status(200).json(user);        
+          }
+          return res.status(400).json('Error');
+            
+          // Return the file name and its public URL
+        //   res
+        //     .status(200)
+        //     .json({ fileName: req.file.originalname, fileLocation: publicUrl });
+        });
+    
+        // When there is no more data to be consumed from the stream
+        blobWriter.end(req.file.buffer);
+      } catch (error) {
+        res.status(400).json(`Error, could not upload file: ${error}`);
+        return;
+      }
+  }
+
   async updateUser(req, res) {
     try {
       const user = await models.User.findOne({
@@ -133,7 +188,19 @@ class UserController {
           id: Number(req.params.id),
         },
       });
-      user.password = bcrypt.hashSync(req.body.password, config.auth.saltRounds);
+      let isCorrect = false;
+      await bcrypt
+        .compare(req.body.oldPassword, user.password)
+        .then((result) => {
+          isCorrect = result;
+        });
+      if (!isCorrect) {
+        return res.status(400).json('Incorrect old password');
+      }
+      if (req.body.newPassword !== req.body.confirmPassword) {
+        return res.status(400).json('Confirm password does not match');
+      }
+      user.password = bcrypt.hashSync(req.body.newPassword, config.auth.saltRounds);
       if (user.save()) {
         return res.status(200).json(user);
       }
