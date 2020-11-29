@@ -10,9 +10,9 @@ const paginate = (arr, atPage, numberPerPage) => {
 		totalPage = parseInt(arr.length / numberPerPage) + 1;
 	}
 	
-	if (atPage > totalPage) {
-			return { error: 'Current page is greater than total page' };
-	}
+	// if (atPage > totalPage) {
+	// 		return { error: 'Current page is greater than total page' };
+	// }
 
 	const startIndex = (atPage - 1) * numberPerPage;
 	const endIndex = atPage * numberPerPage;

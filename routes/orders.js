@@ -7,7 +7,9 @@ router.get('/', orderController.getAllOrders);
 
 router.get('/pagination', orderController.getOrdersPerPage);
 
-router.get('/user/', orderController.getOrdersOfUser);
+router.get('/user', orderController.getOrdersOfUser);
+
+router.get('/owner', orderController.getOrdersOfOwner);
 
 router.get('/status/:statusId', orderController.getOrdersOfStatus);
 

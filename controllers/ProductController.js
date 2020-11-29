@@ -2,6 +2,7 @@ const _ = require('lodash');
 const models = require('../models');
 const paginate = require('../utils/paginate');
 const getUserInfo = require('../utils/getUserInfo');
+const Sequelize = require('sequelize');
 class ProductController {
 	async getAllProducts(req, res) {
 		try {
@@ -64,7 +65,8 @@ class ProductController {
 				return res.status(200).json('Product not found');
 			}
 			const atPage = parseInt(req.query.page) || 1;
-			const result = paginate(products, atPage, 6);
+			const limit = parseInt(req.query.limit) || 10;
+			const result = paginate(products, atPage, limit);
 			return res.status(200).json(result);
 		} catch (error) {
 			return res.status(400).json(error.message);
@@ -84,6 +86,8 @@ class ProductController {
 			}
 			const products = await models.Product.findAll({
 				where: { userId: userId, isDeleted: false },
+				order: [['createdAt', 'DESC']],
+				// attributes: ['id', 'logo_version'],
 				include: [
 					{
 						model: models.User,
@@ -106,9 +110,14 @@ class ProductController {
 			if (!products) {
 				return res.status(200).json('Product not found');
 			}
-			const data = {};
-			data.products = products;
-			return res.status(200).json(data);
+			// const data = {};
+			// data.products = products;
+			// return res.status(200).json(data);
+
+			const atPage = parseInt(req.query.page) || 1;
+			const limit = parseInt(req.query.limit) || 10;
+			const result = paginate(products, atPage, limit);
+			return res.status(200).json(result);
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -147,9 +156,131 @@ class ProductController {
 			if (!products) {
 				return res.status(200).json('Product not found');
 			}
+			// const data = {};
+			// data.products = products;
+			// return res.status(200).json(data);
+
+			const atPage = parseInt(req.query.page) || 1;
+			const limit = parseInt(req.query.limit) || 10;
+			const result = paginate(products, atPage, limit);
+			return res.status(200).json(result);
+		} catch (error) {
+			return res.status(400).json(error.message);
+		}
+	}
+
+	async getProductsOfType(req, res) {
+		try {
+			const typeId = Number(req.params.typeId);
+			let products = [];
+			if (typeId === 1) {
+				products = await models.Product.findAll({
+					where: { isDeleted: false },
+					order: Sequelize.literal('rand()'),
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					],
+					limit: 12
+				});
+			}
+			if (typeId === 2) {
+				products = await models.Product.findAll({
+					where: { isDeleted: false },
+					order: [['createdAt', 'DESC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					],
+					limit: 12
+				});
+			}
+			// if (typeId === 3) {
+			// 	products = await models.Product.findAll({
+			// 		where: { isDeleted: false },
+			// 		order: [['orderDetails', 'DESC']],
+			// 		include: [
+			// 			{
+			// 				model: models.User,
+			// 				as: 'user'
+			// 			},
+			// 			{
+			// 				model: models.Category,
+			// 				as: 'category'
+			// 			},
+			// 			{
+			// 				model: models.Image,
+			// 				as: 'images'
+			// 			},
+			// 			{
+			// 				model: models.OrderDetail,
+			// 				as: 'orderDetails'
+			// 			}
+			// 		],
+			// 		limit: 12
+			// 	});
+			// }
+			// const products = await models.Product.findAll({
+			// 	where: { categoryId: categoryId, isDeleted: false },
+			// 	include: [
+			// 		{
+			// 			model: models.User,
+			// 			as: 'user'
+			// 		},
+			// 		{
+			// 			model: models.Category,
+			// 			as: 'category'
+			// 		},
+			// 		{
+			// 			model: models.Image,
+			// 			as: 'images'
+			// 		},
+			// 		{
+			// 			model: models.OrderDetail,
+			// 			as: 'orderDetails'
+			// 		}
+			// 	]
+			// });
+			// if (!products) {
+			// 	return res.status(200).json('Product not found');
+			// }
+
 			const data = {};
 			data.products = products;
 			return res.status(200).json(data);
+
+			// const atPage = parseInt(req.query.page) || 1;
+			// const limit = parseInt(req.query.limit) || 10;
+			// const result = paginate(products, atPage, limit);
+			// return res.status(200).json(result);
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -185,8 +316,8 @@ class ProductController {
 				return res.status(200).json('Product not found');
 			}
 			const data = {};
-			product.dataValues.user = product.user.username;
-			product.dataValues.category = product.category.name;
+			// product.dataValues.user = product.user.username;
+			// product.dataValues.category = product.category.name;
 			data.product = product;
 			return res.status(200).json(data);
 		} catch (error) {
@@ -194,7 +325,7 @@ class ProductController {
 		}
 	}
 
-	async createProduct(req, res) {
+	async createProduct(req, res, next) {
 		try {
 			const userFromToken = await getUserInfo(req);
 			const userId = userFromToken.id;
@@ -220,6 +351,8 @@ class ProductController {
 				return res.status(400).json('Error');
 			}
 			return res.status(201).json(newProduct);
+			//req.body.productId = newProduct.dataValues.id
+			// next()
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -285,7 +418,8 @@ class ProductController {
 		try {
 			const product = await models.Product.findOne({
 				where: {
-					id: Number(req.params.id)
+					id: Number(req.params.id),
+					isDeleted: false
 				}
 			});
 			product.isDeleted = true;

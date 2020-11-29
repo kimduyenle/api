@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const config = require('../config/app');
 const auth = require('../utils/auth');
 const { bucket } = require('../utils/uploadImage');
+const paginate = require('../utils/paginate');
 class UserController {
 	async getProfile(req, res) {
 		try {
@@ -19,6 +20,35 @@ class UserController {
 					{
 						model: models.Role,
 						as: 'role'
+					},
+					{
+						model: models.Product,
+						as: 'products',
+						where: { isDeleted: false },
+						required: false,
+						include: [
+							{
+								model: models.Image,
+								as: 'images'
+							},
+							{
+								model: models.OrderDetail,
+								as: 'orderDetails',
+								where: { isDeleted: false },
+								required: false
+							}
+						]
+					},
+					{
+						model: models.Cart,
+						as: 'cart',
+						include: [
+							{
+								model: models.CartDetail,
+								as: 'cartDetails',
+								where: { isDeleted: false }
+							}
+						]
 					}
 				]
 			});
@@ -57,6 +87,29 @@ class UserController {
 		}
 	}
 
+	async getUsersPerPage(req, res) {
+		try {
+			const users = await models.User.findAll({
+				where: { isDeleted: false },
+				include: [
+					{
+						model: models.Role,
+						as: 'role'
+					}
+				]
+			});
+			if (!users) {
+				return res.status(200).json('User not found');
+			}
+			const atPage = parseInt(req.query.page) || 1;
+			const limit = parseInt(req.query.limit) || 10;
+			const result = paginate(users, atPage, limit);
+			return res.status(200).json(result);
+		} catch (error) {
+			return res.status(400).json(error.message);
+		}
+	}
+
 	async getUser(req, res) {
 		try {
 			const user = await models.User.findOne({
@@ -68,6 +121,23 @@ class UserController {
 					{
 						model: models.Role,
 						as: 'role'
+					},
+					{
+						model: models.Product,
+						as: 'products',
+						where: { isDeleted: false },
+						required: false
+					},
+					{
+						model: models.Cart,
+						as: 'cart',
+						include: [
+							{
+								model: models.CartDetail,
+								as: 'cartDetails',
+								where: { isDeleted: false }
+							}
+						]
 					}
 				]
 			});
@@ -83,7 +153,7 @@ class UserController {
 		}
 	}
 
-	async createUser(req, res) {
+	async createUser(req, res, next) {
 		try {
 			// check user email exist
 			const user = await models.User.findOne({
@@ -102,11 +172,15 @@ class UserController {
 			}
 			data.password = bcrypt.hashSync(data.password, config.auth.saltRounds);
 			data.status = true;
+			data.avatar =
+				'https://firebasestorage.googleapis.com/v0/b/my-shop-da89c.appspot.com/o/default-avatar.jpg?alt=media';
 
 			const newUser = await models.User.create(data);
 			if (!newUser) {
 				return res.status(400).json('Error');
 			}
+			req.body.userId = newUser.dataValues.id;
+			next();
 			return res.status(201).json(newUser);
 		} catch (error) {
 			return res.status(400).json(error.message);
@@ -244,7 +318,8 @@ class UserController {
 		try {
 			const user = await models.User.findOne({
 				where: {
-					id: Number(req.params.id)
+					id: Number(req.params.id),
+					isDeleted: false
 				}
 			});
 			user.isDeleted = true;

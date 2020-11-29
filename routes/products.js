@@ -11,6 +11,8 @@ router.get('/user', productController.getProductsOfUser);
 
 router.get('/category/:categoryId', productController.getProductsOfCategory);
 
+router.get('/type/:typeId', productController.getProductsOfType);
+
 router.get('/:id', productController.getProduct);
 
 router.post('/', productController.createProduct);
