@@ -173,6 +173,9 @@ class OrderDetailController {
 			if (!newOrderDetail) {
 				return res.status(400).json('Error');
 			}
+			product.quantity -= req.body.quantity;
+			product.sold += req.body.quantity;
+			product.save();
 			return res.status(201).json(newOrderDetail);
 		} catch (error) {
 			return res.status(400).json(error.message);

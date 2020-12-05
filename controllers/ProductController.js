@@ -132,30 +132,152 @@ class ProductController {
 			if (!category) {
 				return res.status(200).json('Category not found');
 			}
-			const products = await models.Product.findAll({
-				where: { categoryId: categoryId, isDeleted: false },
-				include: [
-					{
-						model: models.User,
-						as: 'user'
-					},
-					{
-						model: models.Category,
-						as: 'category'
-					},
-					{
-						model: models.Image,
-						as: 'images'
-					},
-					{
-						model: models.OrderDetail,
-						as: 'orderDetails'
-					}
-				]
-			});
-			if (!products) {
-				return res.status(200).json('Product not found');
+			const typeId = Number(req.query.type) || 0;
+			let products = [];
+			if (typeId === 0) {
+				products = await models.Product.findAll({
+					where: { categoryId: categoryId, isDeleted: false },
+					order: Sequelize.literal('rand()'),
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					]
+				});
 			}
+			if (typeId === 1) {
+				products = await models.Product.findAll({
+					where: { categoryId: categoryId, isDeleted: false },
+					order: [['createdAt', 'DESC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					]
+				});
+			}
+			if (typeId === 2) {
+				products = await models.Product.findAll({
+					where: { categoryId: categoryId, isDeleted: false },
+					order: [['sold', 'DESC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					]
+				});
+			}
+			if (typeId === 3) {
+				products = await models.Product.findAll({
+					where: { categoryId: categoryId, isDeleted: false },
+					order: [['price', 'DESC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					]
+				});
+			}
+			if (typeId === 4) {
+				products = await models.Product.findAll({
+					where: { categoryId: categoryId, isDeleted: false },
+					order: [['price', 'ASC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					]
+				});
+			}
+			// const products = await models.Product.findAll({
+			// 	where: { categoryId: categoryId, isDeleted: false },
+			// 	include: [
+			// 		{
+			// 			model: models.User,
+			// 			as: 'user'
+			// 		},
+			// 		{
+			// 			model: models.Category,
+			// 			as: 'category'
+			// 		},
+			// 		{
+			// 			model: models.Image,
+			// 			as: 'images'
+			// 		},
+			// 		{
+			// 			model: models.OrderDetail,
+			// 			as: 'orderDetails'
+			// 		}
+			// 	]
+			// });
+			// if (!products) {
+			// 	return res.status(200).json('Product not found');
+			// }
 			// const data = {};
 			// data.products = products;
 			// return res.status(200).json(data);
@@ -223,31 +345,31 @@ class ProductController {
 					limit: 12
 				});
 			}
-			// if (typeId === 3) {
-			// 	products = await models.Product.findAll({
-			// 		where: { isDeleted: false },
-			// 		order: [['orderDetails', 'DESC']],
-			// 		include: [
-			// 			{
-			// 				model: models.User,
-			// 				as: 'user'
-			// 			},
-			// 			{
-			// 				model: models.Category,
-			// 				as: 'category'
-			// 			},
-			// 			{
-			// 				model: models.Image,
-			// 				as: 'images'
-			// 			},
-			// 			{
-			// 				model: models.OrderDetail,
-			// 				as: 'orderDetails'
-			// 			}
-			// 		],
-			// 		limit: 12
-			// 	});
-			// }
+			if (typeId === 3) {
+				products = await models.Product.findAll({
+					where: { isDeleted: false },
+					order: [['sold', 'DESC']],
+					include: [
+						{
+							model: models.User,
+							as: 'user'
+						},
+						{
+							model: models.Category,
+							as: 'category'
+						},
+						{
+							model: models.Image,
+							as: 'images'
+						},
+						{
+							model: models.OrderDetail,
+							as: 'orderDetails'
+						}
+					],
+					limit: 12
+				});
+			}
 			// const products = await models.Product.findAll({
 			// 	where: { categoryId: categoryId, isDeleted: false },
 			// 	include: [

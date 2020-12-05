@@ -69,7 +69,53 @@ class CartDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: 'product',
+						include: [
+							{
+								model: models.User,
+								as: 'user'
+							}
+						]
+					},
+					{
+						model: models.Cart,
+						as: 'cart'
+					}
+				]
+			});
+			if (!cartDetails) {
+				return res.status(200).json('Cart detail not found');
+			}
+			const data = {};
+			data.cartDetails = cartDetails;
+			return res.status(200).json(data);
+		} catch (error) {
+			return res.status(400).json(error.message);
+		}
+	}
+
+	async getCartDetailsOfOwner(req, res) {
+		try {
+			const cartId = Number(req.params.cartId);
+			const cart = await models.Cart.findOne({
+				where: { id: cartId, isDeleted: false }
+			});
+			if (!cart) {
+				return res.status(200).json('Cart not found');
+			}
+			const cartDetails = await models.CartDetail.findAll({
+				where: { cartId: cartId, isDeleted: false },
+				group: ['price'],
+				include: [
+					{
+						model: models.Product,
+						as: 'product',
+						include: [
+							{
+								model: models.User,
+								as: 'user'
+							}
+						]
 					},
 					{
 						model: models.Cart,

@@ -4,7 +4,13 @@ class CategoryController {
 	async getAllCategories(req, res) {
 		try {
 			const categories = await models.Category.findAll({
-				where: { isDeleted: false }
+				where: { isDeleted: false },
+				include: [
+					{
+						model: models.Product,
+						as: 'products'
+					}
+				]
 			});
 			if (!categories) {
 				return res.status(200).json('Category not found');

@@ -10,6 +10,10 @@ router.get('/pagination', cartDetailController.getCartDetailsPerPage);
 router.get('/cart/:cartId', cartDetailController.getCartDetailsOfCart);
 
 // router.get('/product/:productId', cartDetailController.getOrderDetailsOfProduct);
+router.get(
+	'/cart/:cartId/group-owner',
+	cartDetailController.getCartDetailsOfOwner
+);
 
 router.get('/:id', cartDetailController.getCartDetail);
 

@@ -17,6 +17,10 @@ class OrderController {
 						as: 'status'
 					},
 					{
+						model: models.Transportation,
+						as: 'transportation'
+					},
+					{
 						model: models.OrderDetail,
 						as: 'orderDetails',
 						include: [
@@ -51,6 +55,10 @@ class OrderController {
 					{
 						model: models.Status,
 						as: 'status'
+					},
+					{
+						model: models.Transportation,
+						as: 'transportation'
 					},
 					{
 						model: models.OrderDetail,
@@ -101,6 +109,10 @@ class OrderController {
 					{
 						model: models.Status,
 						as: 'status'
+					},
+					{
+						model: models.Transportation,
+						as: 'transportation'
 					},
 					{
 						model: models.OrderDetail,
@@ -174,6 +186,10 @@ class OrderController {
 						as: 'status'
 					},
 					{
+						model: models.Transportation,
+						as: 'transportation'
+					},
+					{
 						model: models.OrderDetail,
 						as: 'orderDetails',
 						required: true,
@@ -234,6 +250,10 @@ class OrderController {
 						as: 'status'
 					},
 					{
+						model: models.Transportation,
+						as: 'transportation'
+					},
+					{
 						model: models.OrderDetail,
 						as: 'orderDetails'
 					}
@@ -265,6 +285,10 @@ class OrderController {
 					{
 						model: models.Status,
 						as: 'status'
+					},
+					{
+						model: models.Transportation,
+						as: 'transportation'
 					},
 					{
 						model: models.OrderDetail,
@@ -320,12 +344,12 @@ class OrderController {
 			}
 
 			const data = req.body;
-			if (!req.body.deliveryPhoneNumber) {
-				data.deliveryPhoneNumber = user.phoneNumber;
-			}
-			if (!req.body.deliveryAddress) {
-				data.deliveryAddress = user.address;
-			}
+			// if (!req.body.deliveryPhoneNumber) {
+			// 	data.deliveryPhoneNumber = user.phoneNumber;
+			// }
+			// if (!req.body.deliveryAddress) {
+			// 	data.deliveryAddress = user.address;
+			// }
 			data.userId = userId;
 			data.statusId = status.id;
 

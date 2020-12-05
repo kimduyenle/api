@@ -84,6 +84,10 @@ class CartController {
 								as: 'product',
 								include: [
 									{
+										model: models.User,
+										as: 'user'
+									},
+									{
 										model: models.Image,
 										as: 'images'
 									}
