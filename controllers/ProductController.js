@@ -3,6 +3,7 @@ const models = require('../models');
 const paginate = require('../utils/paginate');
 const getUserInfo = require('../utils/getUserInfo');
 const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 class ProductController {
 	async getAllProducts(req, res) {
 		try {
@@ -132,11 +133,19 @@ class ProductController {
 			if (!category) {
 				return res.status(200).json('Category not found');
 			}
+			const search = req.query.search || '';
 			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 0) {
 				products = await models.Product.findAll({
-					where: { categoryId: categoryId, isDeleted: false },
+					where: {
+						categoryId: categoryId,
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: Sequelize.literal('rand()'),
 					include: [
 						{
@@ -160,7 +169,14 @@ class ProductController {
 			}
 			if (typeId === 1) {
 				products = await models.Product.findAll({
-					where: { categoryId: categoryId, isDeleted: false },
+					where: {
+						categoryId: categoryId,
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['createdAt', 'DESC']],
 					include: [
 						{
@@ -184,7 +200,14 @@ class ProductController {
 			}
 			if (typeId === 2) {
 				products = await models.Product.findAll({
-					where: { categoryId: categoryId, isDeleted: false },
+					where: {
+						categoryId: categoryId,
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['sold', 'DESC']],
 					include: [
 						{
@@ -208,7 +231,14 @@ class ProductController {
 			}
 			if (typeId === 3) {
 				products = await models.Product.findAll({
-					where: { categoryId: categoryId, isDeleted: false },
+					where: {
+						categoryId: categoryId,
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['price', 'DESC']],
 					include: [
 						{
@@ -232,7 +262,14 @@ class ProductController {
 			}
 			if (typeId === 4) {
 				products = await models.Product.findAll({
-					where: { categoryId: categoryId, isDeleted: false },
+					where: {
+						categoryId: categoryId,
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['price', 'ASC']],
 					include: [
 						{
@@ -293,11 +330,18 @@ class ProductController {
 
 	async getProductsOfType(req, res) {
 		try {
-			const typeId = Number(req.params.typeId);
+			const search = req.query.search || '';
+			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 1) {
 				products = await models.Product.findAll({
-					where: { isDeleted: false },
+					where: {
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: Sequelize.literal('rand()'),
 					include: [
 						{
@@ -316,13 +360,18 @@ class ProductController {
 							model: models.OrderDetail,
 							as: 'orderDetails'
 						}
-					],
-					limit: 12
+					]
 				});
 			}
 			if (typeId === 2) {
 				products = await models.Product.findAll({
-					where: { isDeleted: false },
+					where: {
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['createdAt', 'DESC']],
 					include: [
 						{
@@ -341,13 +390,18 @@ class ProductController {
 							model: models.OrderDetail,
 							as: 'orderDetails'
 						}
-					],
-					limit: 12
+					]
 				});
 			}
 			if (typeId === 3) {
 				products = await models.Product.findAll({
-					where: { isDeleted: false },
+					where: {
+						isDeleted: false,
+						status: 1,
+						name: {
+							[Op.like]: `%${search}%`
+						}
+					},
 					order: [['sold', 'DESC']],
 					include: [
 						{
@@ -366,8 +420,7 @@ class ProductController {
 							model: models.OrderDetail,
 							as: 'orderDetails'
 						}
-					],
-					limit: 12
+					]
 				});
 			}
 			// const products = await models.Product.findAll({
@@ -395,14 +448,14 @@ class ProductController {
 			// 	return res.status(200).json('Product not found');
 			// }
 
-			const data = {};
-			data.products = products;
-			return res.status(200).json(data);
+			// const data = {};
+			// data.products = products;
+			// return res.status(200).json(data);
 
-			// const atPage = parseInt(req.query.page) || 1;
-			// const limit = parseInt(req.query.limit) || 10;
-			// const result = paginate(products, atPage, limit);
-			// return res.status(200).json(result);
+			const atPage = parseInt(req.query.page) || 1;
+			const limit = parseInt(req.query.limit) || 10;
+			const result = paginate(products, atPage, limit);
+			return res.status(200).json(result);
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}

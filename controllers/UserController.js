@@ -163,7 +163,7 @@ class UserController {
 				}
 			});
 			if (user) {
-				return res.status(400).json('Username exists');
+				return res.status(400).json('Tên tài khoản đã tồn tại');
 			}
 
 			const data = req.body;
@@ -278,10 +278,10 @@ class UserController {
 				isCorrect = result;
 			});
 			if (!isCorrect) {
-				return res.status(400).json('Incorrect old password');
+				return res.status(400).json('Mật khẩu cũ không đúng');
 			}
 			if (req.body.newPassword !== req.body.confirmPassword) {
-				return res.status(400).json('Confirm password does not match');
+				return res.status(400).json('Xác nhận mật khẩu không đúng');
 			}
 			user.password = bcrypt.hashSync(
 				req.body.newPassword,

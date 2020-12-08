@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'userId',
 				as: 'cart'
 			});
+			User.hasMany(models.Transaction, {
+				foreignKey: 'userId',
+				as: 'transactions' //
+			});
 		}
 	}
 	User.init(
@@ -41,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 			phoneNumber: DataTypes.STRING,
 			address: DataTypes.STRING,
 			avatar: DataTypes.STRING,
+			wallet: DataTypes.INTEGER,
 			isDeleted: DataTypes.BOOLEAN
 		},
 		{

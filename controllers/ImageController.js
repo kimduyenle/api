@@ -93,36 +93,41 @@ class ImageController {
 		}
 	}
 
-	async updateStatus(req, res) {
+	async setDefaultImage(req, res) {
 		try {
-			const status = await models.Status.findOne({
-				where: {
-					id: Number(req.params.id),
-					isDeleted: false
-				}
+			const product = await models.Product.findOne({
+				where: { id: Number(req.params.productId), isDeleted: false }
 			});
-			status.name = req.body.name;
-			if (status.save()) {
-				return res.status(200).json(status);
+			if (!product) {
+				return res.status(400).json('Product not found');
 			}
-			return res.status(400).json('Error');
+			const data = {
+				productId: Number(req.params.productId),
+				path:
+					'https://firebasestorage.googleapis.com/v0/b/my-shop-da89c.appspot.com/o/default-product.jpg?alt=media'
+			};
+			const image = await models.Image.create(data);
+			if (!image) {
+				return res.status(400).json('Error');
+			}
+			return res.status(201).json(image);
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
 	}
 
-	async deleteStatus(req, res) {
+	async deleteImage(req, res) {
 		try {
-			const status = await models.Status.findOne({
+			const image = await models.Image.findOne({
 				where: {
 					id: Number(req.params.id),
 					isDeleted: false
 				}
 			});
-			status.isDeleted = true;
+			image.isDeleted = true;
 
-			if (status.save()) {
-				return res.status(200).json(status);
+			if (image.save()) {
+				return res.status(200).json(image);
 			}
 			return res.status(400).json('Error');
 		} catch (error) {

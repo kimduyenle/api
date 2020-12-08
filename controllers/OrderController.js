@@ -426,9 +426,9 @@ class OrderController {
 
 			const userFromToken = await getUserInfo(req);
 			const userId = userFromToken.id;
-			if (orderDetails[0].product.userId !== userId) {
-				return res.status(400).json('Current user cannot update order status');
-			}
+			// if (orderDetails[0].product.userId !== userId) {
+			// 	return res.status(400).json('Current user cannot update order status');
+			// }
 
 			const order = await models.Order.findOne({
 				where: {

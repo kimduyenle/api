@@ -8,10 +8,14 @@ const imageController = require('../controllers/ImageController');
 
 // router.get('/:id', statusController.getStatus);
 
-router.post('/:productId', uploader.single('image'), imageController.uploadProductImage);
+router.post(
+	'/:productId',
+	uploader.single('image'),
+	imageController.uploadProductImage
+);
 
-// router.put('/:id', statusController.updateStatus);
+router.post('/default/:productId', imageController.setDefaultImage);
 
-// router.put('/delete/:id', statusController.deleteStatus);
+router.put('/delete/:id', imageController.deleteImage);
 
 module.exports = router;
