@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const models = require('../models');
-const paginate = require('../utils/paginate');
+const _ = require("lodash");
+const models = require("../models");
+const paginate = require("../utils/paginate");
 class CartDetailController {
 	async getAllCartDetails(req, res) {
 		try {
@@ -9,16 +9,16 @@ class CartDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Cart,
-						as: 'cart'
+						as: "cart"
 					}
 				]
 			});
 			if (!cartDetails) {
-				return res.status(200).json('Cart detail not found');
+				return res.status(200).json("Cart detail not found");
 			}
 			const data = {};
 			data.cartDetails = cartDetails;
@@ -35,16 +35,16 @@ class CartDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Cart,
-						as: 'cart'
+						as: "cart"
 					}
 				]
 			});
 			if (!cartDetails) {
-				return res.status(200).json('Cart detail not found');
+				return res.status(200).json("Cart detail not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -62,29 +62,29 @@ class CartDetailController {
 				where: { id: cartId, isDeleted: false }
 			});
 			if (!cart) {
-				return res.status(200).json('Cart not found');
+				return res.status(200).json("Cart not found");
 			}
 			const cartDetails = await models.CartDetail.findAll({
 				where: { cartId: cartId, isDeleted: false },
 				include: [
 					{
 						model: models.Product,
-						as: 'product',
+						as: "product",
 						include: [
 							{
 								model: models.User,
-								as: 'user'
+								as: "user"
 							}
 						]
 					},
 					{
 						model: models.Cart,
-						as: 'cart'
+						as: "cart"
 					}
 				]
 			});
 			if (!cartDetails) {
-				return res.status(200).json('Cart detail not found');
+				return res.status(200).json("Cart detail not found");
 			}
 			const data = {};
 			data.cartDetails = cartDetails;
@@ -101,30 +101,30 @@ class CartDetailController {
 				where: { id: cartId, isDeleted: false }
 			});
 			if (!cart) {
-				return res.status(200).json('Cart not found');
+				return res.status(200).json("Cart not found");
 			}
 			const cartDetails = await models.CartDetail.findAll({
 				where: { cartId: cartId, isDeleted: false },
-				group: ['price'],
+				group: ["price"],
 				include: [
 					{
 						model: models.Product,
-						as: 'product',
+						as: "product",
 						include: [
 							{
 								model: models.User,
-								as: 'user'
+								as: "user"
 							}
 						]
 					},
 					{
 						model: models.Cart,
-						as: 'cart'
+						as: "cart"
 					}
 				]
 			});
 			if (!cartDetails) {
-				return res.status(200).json('Cart detail not found');
+				return res.status(200).json("Cart detail not found");
 			}
 			const data = {};
 			data.cartDetails = cartDetails;
@@ -175,16 +175,16 @@ class CartDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Cart,
-						as: 'cart'
+						as: "cart"
 					}
 				]
 			});
 			if (!cartDetail) {
-				return res.status(200).json('Cart detail not found');
+				return res.status(200).json("Cart detail not found");
 			}
 			const data = {};
 			cartDetail.dataValues.product = cartDetail.product.name;
@@ -201,29 +201,68 @@ class CartDetailController {
 				where: { id: Number(req.body.productId), isDeleted: false }
 			});
 			if (!product) {
-				return res.status(400).json('Product not found');
+				return res.status(400).json("Product not found");
 			}
 			const cart = await models.Cart.findOne({
 				where: { id: Number(req.body.cartId), isDeleted: false }
 			});
 			if (!cart) {
-				return res.status(400).json('Cart not found');
+				return res.status(400).json("Cart not found");
 			}
 			const cartDetail = await models.CartDetail.findOne({
 				where: {
 					productId: Number(req.body.productId),
 					cartId: Number(req.body.cartId),
 					isDeleted: false
-				}
+				},
+				include: [
+					{
+						model: models.Product,
+						as: "product",
+						include: [
+							{
+								model: models.User,
+								as: "user"
+							},
+							{
+								model: models.Image,
+								as: "images"
+							}
+						]
+					}
+				]
 			});
 			if (!cartDetail) {
 				const data = req.body;
 
 				const newCartDetail = await models.CartDetail.create(data);
 				if (!newCartDetail) {
-					return res.status(400).json('Error');
+					return res.status(400).json("Error");
 				}
-				return res.status(201).json(newCartDetail);
+				const r = await models.CartDetail.findOne({
+					where: {
+						productId: newCartDetail.productId,
+						cartId: newCartDetail.cartId,
+						isDeleted: false
+					},
+					include: [
+						{
+							model: models.Product,
+							as: "product",
+							include: [
+								{
+									model: models.User,
+									as: "user"
+								},
+								{
+									model: models.Image,
+									as: "images"
+								}
+							]
+						}
+					]
+				});
+				return res.status(201).json(r);
 			}
 
 			cartDetail.quantity += req.body.quantity;
@@ -231,7 +270,7 @@ class CartDetailController {
 			if (cartDetail.save()) {
 				return res.status(200).json(cartDetail);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -244,7 +283,7 @@ class CartDetailController {
 					where: { id: Number(req.body.productId), isDeleted: false }
 				});
 				if (!product) {
-					return res.status(400).json('Product not found');
+					return res.status(400).json("Product not found");
 				}
 			}
 
@@ -253,7 +292,7 @@ class CartDetailController {
 					where: { id: Number(req.body.cartId), isDeleted: false }
 				});
 				if (!cart) {
-					return res.status(400).json('Cart not found');
+					return res.status(400).json("Cart not found");
 				}
 			}
 
@@ -269,7 +308,7 @@ class CartDetailController {
 			if (cartDetail.save()) {
 				return res.status(200).json(cartDetail);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -289,7 +328,7 @@ class CartDetailController {
 			if (cartDetail.save()) {
 				return res.status(200).json(cartDetail);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}

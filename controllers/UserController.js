@@ -1,11 +1,11 @@
-const _ = require('lodash');
-const jwt = require('jsonwebtoken');
-const models = require('../models');
-const bcrypt = require('bcrypt');
-const config = require('../config/app');
-const auth = require('../utils/auth');
-const { bucket } = require('../utils/uploadImage');
-const paginate = require('../utils/paginate');
+const _ = require("lodash");
+const jwt = require("jsonwebtoken");
+const models = require("../models");
+const bcrypt = require("bcrypt");
+const config = require("../config/app");
+const auth = require("../utils/auth");
+const { bucket } = require("../utils/uploadImage");
+const paginate = require("../utils/paginate");
 class UserController {
 	async getProfile(req, res) {
 		try {
@@ -19,21 +19,21 @@ class UserController {
 				include: [
 					{
 						model: models.Role,
-						as: 'role'
+						as: "role"
 					},
 					{
 						model: models.Product,
-						as: 'products',
+						as: "products",
 						where: { isDeleted: false },
 						required: false,
 						include: [
 							{
 								model: models.Image,
-								as: 'images'
+								as: "images"
 							},
 							{
 								model: models.OrderDetail,
-								as: 'orderDetails',
+								as: "orderDetails",
 								where: { isDeleted: false },
 								required: false
 							}
@@ -41,20 +41,24 @@ class UserController {
 					},
 					{
 						model: models.Cart,
-						as: 'cart',
+						as: "cart",
 						include: [
 							{
 								model: models.CartDetail,
-								as: 'cartDetails',
+								as: "cartDetails",
 								where: { isDeleted: false }
 							}
 						]
+					},
+					{
+						model: models.Transaction,
+						as: "transactions"
 					}
 				]
 			});
 
 			if (!user) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 			const data = {};
 			user.dataValues.role = user.role.name;
@@ -72,12 +76,12 @@ class UserController {
 				include: [
 					{
 						model: models.Role,
-						as: 'role'
+						as: "role"
 					}
 				]
 			});
 			if (!users) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 			const data = {};
 			data.users = users;
@@ -94,12 +98,12 @@ class UserController {
 				include: [
 					{
 						model: models.Role,
-						as: 'role'
+						as: "role"
 					}
 				]
 			});
 			if (!users) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -120,21 +124,21 @@ class UserController {
 				include: [
 					{
 						model: models.Role,
-						as: 'role'
+						as: "role"
 					},
 					{
 						model: models.Product,
-						as: 'products',
+						as: "products",
 						where: { isDeleted: false },
 						required: false
 					},
 					{
 						model: models.Cart,
-						as: 'cart',
+						as: "cart",
 						include: [
 							{
 								model: models.CartDetail,
-								as: 'cartDetails',
+								as: "cartDetails",
 								where: { isDeleted: false }
 							}
 						]
@@ -142,7 +146,7 @@ class UserController {
 				]
 			});
 			if (!user) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 			const data = {};
 			user.dataValues.role = user.role.name;
@@ -163,7 +167,7 @@ class UserController {
 				}
 			});
 			if (user) {
-				return res.status(400).json('Tên tài khoản đã tồn tại');
+				return res.status(400).json("Tên tài khoản đã tồn tại");
 			}
 
 			const data = req.body;
@@ -173,11 +177,12 @@ class UserController {
 			data.password = bcrypt.hashSync(data.password, config.auth.saltRounds);
 			data.status = true;
 			data.avatar =
-				'https://firebasestorage.googleapis.com/v0/b/my-shop-da89c.appspot.com/o/default-avatar.jpg?alt=media';
+				"https://firebasestorage.googleapis.com/v0/b/my-shop-da89c.appspot.com/o/default-avatar.jpg?alt=media";
+			data.wallet = 0;
 
 			const newUser = await models.User.create(data);
 			if (!newUser) {
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 			}
 			req.body.userId = newUser.dataValues.id;
 			next();
@@ -190,7 +195,7 @@ class UserController {
 	async uploadAvatar(req, res, next) {
 		try {
 			if (!req.file) {
-				res.status(400).json('Error, could not upload file');
+				res.status(400).json("Error, could not upload file");
 				return;
 			}
 
@@ -198,7 +203,7 @@ class UserController {
 				where: { id: Number(req.params.id), isDeleted: false }
 			});
 			if (!user) {
-				return res.status(400).json('User not found');
+				return res.status(400).json("User not found");
 			}
 
 			// Create new blob in the bucket referencing the file
@@ -211,9 +216,9 @@ class UserController {
 				}
 			});
 
-			blobWriter.on('error', err => next(err));
+			blobWriter.on("error", err => next(err));
 
-			blobWriter.on('finish', async () => {
+			blobWriter.on("finish", async () => {
 				// Assembling public URL for accessing the file via HTTP
 				const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
 					bucket.name
@@ -223,7 +228,7 @@ class UserController {
 				if (user.save()) {
 					return res.status(200).json(user);
 				}
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 
 				// Return the file name and its public URL
 				//   res
@@ -251,6 +256,9 @@ class UserController {
 			user.email = req.body.email;
 			user.phoneNumber = req.body.phoneNumber;
 			user.address = req.body.address;
+			user.province = req.body.province;
+			user.district = req.body.district;
+			user.wallet = req.body.wallet;
 			// const user = await models.User.update(req.body, {
 			//   where: {
 			//     id: req.params.id,
@@ -259,7 +267,7 @@ class UserController {
 			if (user.save()) {
 				return res.status(200).json(user);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -278,10 +286,10 @@ class UserController {
 				isCorrect = result;
 			});
 			if (!isCorrect) {
-				return res.status(400).json('Mật khẩu cũ không đúng');
+				return res.status(400).json("Mật khẩu cũ không đúng");
 			}
 			if (req.body.newPassword !== req.body.confirmPassword) {
-				return res.status(400).json('Xác nhận mật khẩu không đúng');
+				return res.status(400).json("Xác nhận mật khẩu không đúng");
 			}
 			user.password = bcrypt.hashSync(
 				req.body.newPassword,
@@ -290,7 +298,7 @@ class UserController {
 			if (user.save()) {
 				return res.status(200).json(user);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -308,7 +316,7 @@ class UserController {
 			if (user.save()) {
 				return res.status(200).json(user);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -327,7 +335,7 @@ class UserController {
 			if (user.save()) {
 				return res.status(200).json(user);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}

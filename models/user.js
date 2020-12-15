@@ -1,5 +1,5 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
 	class User extends Model {
 		/**
@@ -10,28 +10,28 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			// define association here
 			User.belongsTo(models.Role, {
-				foreignKey: 'roleId',
-				as: 'role' // object gom cac truong ben bang role
+				foreignKey: "roleId",
+				as: "role" // object gom cac truong ben bang role
 			});
 			User.hasMany(models.Product, {
-				foreignKey: 'userId',
-				as: 'products' //
+				foreignKey: "userId",
+				as: "products" //
 			});
 			User.hasMany(models.Order, {
-				foreignKey: 'userId',
-				as: 'orders' //
+				foreignKey: "userId",
+				as: "orders" //
 			});
 			User.hasMany(models.Review, {
-				foreignKey: 'userId',
-				as: 'reviews' //
+				foreignKey: "userId",
+				as: "reviews" //
 			});
 			User.hasOne(models.Cart, {
-				foreignKey: 'userId',
-				as: 'cart'
+				foreignKey: "userId",
+				as: "cart"
 			});
 			User.hasMany(models.Transaction, {
-				foreignKey: 'userId',
-				as: 'transactions' //
+				foreignKey: "userId",
+				as: "transactions" //
 			});
 		}
 	}
@@ -44,13 +44,15 @@ module.exports = (sequelize, DataTypes) => {
 			status: DataTypes.BOOLEAN,
 			phoneNumber: DataTypes.STRING,
 			address: DataTypes.STRING,
+			province: DataTypes.STRING,
+			district: DataTypes.STRING,
 			avatar: DataTypes.STRING,
 			wallet: DataTypes.INTEGER,
 			isDeleted: DataTypes.BOOLEAN
 		},
 		{
 			sequelize,
-			modelName: 'User'
+			modelName: "User"
 		}
 	);
 	return User;

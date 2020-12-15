@@ -1,7 +1,7 @@
-const _ = require('lodash');
-const models = require('../models');
-const paginate = require('../utils/paginate');
-const getUserInfo = require('../utils/getUserInfo');
+const _ = require("lodash");
+const models = require("../models");
+const paginate = require("../utils/paginate");
+const getUserInfo = require("../utils/getUserInfo");
 class OrderController {
 	async getAllOrders(req, res) {
 		try {
@@ -10,30 +10,30 @@ class OrderController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails',
+						as: "orderDetails",
 						include: [
 							{
 								model: models.Product,
-								as: 'product'
+								as: "product"
 							}
 						]
 					}
 				]
 			});
 			if (!orders) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			const data = {};
 			data.orders = orders;
@@ -50,24 +50,24 @@ class OrderController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!orders) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -87,7 +87,7 @@ class OrderController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 
 			const statusId = Number(req.query.statusId) || 1;
@@ -95,41 +95,41 @@ class OrderController {
 				where: { id: statusId, isDeleted: false }
 			});
 			if (!status) {
-				return res.status(200).json('Status not found');
+				return res.status(200).json("Status not found");
 			}
 
 			const orders = await models.Order.findAll({
 				where: { userId: userId, statusId: statusId, isDeleted: false },
-				order: [['createdAt', 'DESC']],
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails',
+						as: "orderDetails",
 						include: [
 							{
 								model: models.Product,
-								as: 'product',
+								as: "product",
 								where: { isDeleted: false },
 								include: [
 									{
 										model: models.User,
-										as: 'user'
+										as: "user"
 									},
 									{
 										model: models.Image,
-										as: 'images'
+										as: "images"
 									}
 								]
 							}
@@ -138,7 +138,7 @@ class OrderController {
 				]
 			});
 			if (!orders) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			// const data = {};
 			// data.orders = orders;
@@ -162,7 +162,7 @@ class OrderController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 
 			const statusId = Number(req.query.statusId) || 1;
@@ -170,42 +170,42 @@ class OrderController {
 				where: { id: statusId, isDeleted: false }
 			});
 			if (!status) {
-				return res.status(200).json('Status not found');
+				return res.status(200).json("Status not found");
 			}
 
 			const orders = await models.Order.findAll({
 				where: { statusId: statusId, isDeleted: false },
-				order: [['createdAt', 'DESC']],
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails',
+						as: "orderDetails",
 						required: true,
 						include: [
 							{
 								model: models.Product,
-								as: 'product',
+								as: "product",
 								where: { userId: userId, isDeleted: false },
 								include: [
 									{
 										model: models.User,
-										as: 'user'
+										as: "user"
 									},
 									{
 										model: models.Image,
-										as: 'images'
+										as: "images"
 									}
 								]
 							}
@@ -214,7 +214,7 @@ class OrderController {
 				]
 			});
 			if (!orders) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			// const data = {};
 			// data.orders = orders;
@@ -236,31 +236,31 @@ class OrderController {
 				where: { id: statusId, isDeleted: false }
 			});
 			if (!status) {
-				return res.status(200).json('Status not found');
+				return res.status(200).json("Status not found");
 			}
 			const orders = await models.Order.findAll({
 				where: { statusId: statusId, isDeleted: false },
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!orders) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			const data = {};
 			data.orders = orders;
@@ -280,31 +280,31 @@ class OrderController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Status,
-						as: 'status'
+						as: "status"
 					},
 					{
 						model: models.Transportation,
-						as: 'transportation'
+						as: "transportation"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails',
+						as: "orderDetails",
 						include: [
 							{
 								model: models.Product,
-								as: 'product',
+								as: "product",
 								include: [
 									{
 										model: models.User,
-										as: 'user'
+										as: "user"
 									},
 									{
 										model: models.Image,
-										as: 'images'
+										as: "images"
 									}
 								]
 							}
@@ -313,7 +313,7 @@ class OrderController {
 				]
 			});
 			if (!order) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			const data = {};
 			// order.dataValues.user = order.user.username;
@@ -334,14 +334,14 @@ class OrderController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(400).json('User not found');
+				return res.status(400).json("User not found");
 			}
-			const status = await models.Status.findOne({
-				where: { id: 1, isDeleted: false }
-			});
-			if (!status) {
-				return res.status(400).json('Status not found');
-			}
+			// const status = await models.Status.findOne({
+			// 	where: { id: 1, isDeleted: false }
+			// });
+			// if (!status) {
+			// 	return res.status(400).json("Status not found");
+			// }
 
 			const data = req.body;
 			// if (!req.body.deliveryPhoneNumber) {
@@ -351,11 +351,11 @@ class OrderController {
 			// 	data.deliveryAddress = user.address;
 			// }
 			data.userId = userId;
-			data.statusId = status.id;
+			// data.statusId = status.id;
 
 			const newOrder = await models.Order.create(data);
 			if (!newOrder) {
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 			}
 			return res.status(201).json(newOrder);
 		} catch (error) {
@@ -373,18 +373,18 @@ class OrderController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (orderDetails.length === 0) {
-				return res.status(400).json('Order not found');
+				return res.status(400).json("Order not found");
 			}
 
 			const userFromToken = await getUserInfo(req);
 			const userId = userFromToken.id;
 			if (orderDetails[0].product.userId !== userId) {
-				return res.status(400).json('Current user cannot update order status');
+				return res.status(400).json("Current user cannot update order status");
 			}
 
 			const order = await models.Order.findOne({
@@ -400,7 +400,7 @@ class OrderController {
 			if (order.save()) {
 				return res.status(200).json(order);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -416,12 +416,12 @@ class OrderController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (orderDetails.length === 0) {
-				return res.status(400).json('Order not found');
+				return res.status(400).json("Order not found");
 			}
 
 			const userFromToken = await getUserInfo(req);
@@ -455,7 +455,7 @@ class OrderController {
 			if (order.save()) {
 				return res.status(200).json(order);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -474,7 +474,7 @@ class OrderController {
 			if (order.save()) {
 				return res.status(200).json(order);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}

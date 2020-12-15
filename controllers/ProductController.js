@@ -1,8 +1,8 @@
-const _ = require('lodash');
-const models = require('../models');
-const paginate = require('../utils/paginate');
-const getUserInfo = require('../utils/getUserInfo');
-const Sequelize = require('sequelize');
+const _ = require("lodash");
+const models = require("../models");
+const paginate = require("../utils/paginate");
+const getUserInfo = require("../utils/getUserInfo");
+const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 class ProductController {
 	async getAllProducts(req, res) {
@@ -12,24 +12,24 @@ class ProductController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Category,
-						as: 'category'
+						as: "category"
 					},
 					{
 						model: models.Image,
-						as: 'images'
+						as: "images"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!products) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			const data = {};
 			data.products = products;
@@ -46,24 +46,24 @@ class ProductController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Category,
-						as: 'category'
+						as: "category"
 					},
 					{
 						model: models.Image,
-						as: 'images'
+						as: "images"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!products) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -83,33 +83,33 @@ class ProductController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(200).json('User not found');
+				return res.status(200).json("User not found");
 			}
 			const products = await models.Product.findAll({
 				where: { userId: userId, isDeleted: false },
-				order: [['createdAt', 'DESC']],
+				order: [["createdAt", "DESC"]],
 				// attributes: ['id', 'logo_version'],
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Category,
-						as: 'category'
+						as: "category"
 					},
 					{
 						model: models.Image,
-						as: 'images'
+						as: "images"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!products) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			// const data = {};
 			// data.products = products;
@@ -131,9 +131,9 @@ class ProductController {
 				where: { id: categoryId, isDeleted: false }
 			});
 			if (!category) {
-				return res.status(200).json('Category not found');
+				return res.status(200).json("Category not found");
 			}
-			const search = req.query.search || '';
+			const search = req.query.search || "";
 			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 0) {
@@ -146,23 +146,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: Sequelize.literal('rand()'),
+					order: Sequelize.literal("rand()"),
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -177,23 +177,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['createdAt', 'DESC']],
+					order: [["createdAt", "DESC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -208,23 +208,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['sold', 'DESC']],
+					order: [["sold", "DESC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -239,23 +239,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['price', 'DESC']],
+					order: [["price", "DESC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -270,23 +270,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['price', 'ASC']],
+					order: [["price", "ASC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -330,7 +330,7 @@ class ProductController {
 
 	async getProductsOfType(req, res) {
 		try {
-			const search = req.query.search || '';
+			const search = req.query.search || "";
 			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 1) {
@@ -342,23 +342,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: Sequelize.literal('rand()'),
+					order: Sequelize.literal("rand()"),
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -372,23 +372,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['createdAt', 'DESC']],
+					order: [["createdAt", "DESC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -402,23 +402,23 @@ class ProductController {
 							[Op.like]: `%${search}%`
 						}
 					},
-					order: [['sold', 'DESC']],
+					order: [["sold", "DESC"]],
 					include: [
 						{
 							model: models.User,
-							as: 'user'
+							as: "user"
 						},
 						{
 							model: models.Category,
-							as: 'category'
+							as: "category"
 						},
 						{
 							model: models.Image,
-							as: 'images'
+							as: "images"
 						},
 						{
 							model: models.OrderDetail,
-							as: 'orderDetails'
+							as: "orderDetails"
 						}
 					]
 				});
@@ -471,24 +471,24 @@ class ProductController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Category,
-						as: 'category'
+						as: "category"
 					},
 					{
 						model: models.Image,
-						as: 'images'
+						as: "images"
 					},
 					{
 						model: models.OrderDetail,
-						as: 'orderDetails'
+						as: "orderDetails"
 					}
 				]
 			});
 			if (!product) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			const data = {};
 			// product.dataValues.user = product.user.username;
@@ -508,22 +508,22 @@ class ProductController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(400).json('User not found');
+				return res.status(400).json("User not found");
 			}
 			const category = await models.Category.findOne({
 				where: { id: Number(req.body.categoryId), isDeleted: false }
 			});
 			if (!category) {
-				return res.status(400).json('Category not found');
+				return res.status(400).json("Category not found");
 			}
 
 			const data = req.body;
 			data.userId = userId;
-			data.status = true;
+			data.status = false;
 
 			const newProduct = await models.Product.create(data);
 			if (!newProduct) {
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 			}
 			return res.status(201).json(newProduct);
 			//req.body.productId = newProduct.dataValues.id
@@ -542,14 +542,14 @@ class ProductController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(400).json('User not found');
+				return res.status(400).json("User not found");
 			}
 			if (req.body.categoryId) {
 				const category = await models.Category.findOne({
 					where: { id: Number(req.body.categoryId), isDeleted: false }
 				});
 				if (!category) {
-					return res.status(400).json('Category not found');
+					return res.status(400).json("Category not found");
 				}
 			}
 
@@ -561,18 +561,18 @@ class ProductController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Category,
-						as: 'category'
+						as: "category"
 					}
 				]
 			});
 
-			if (userId !== product.userId) {
-				return res.status(401).json('No permission');
-			}
+			// if (userId !== product.userId) {
+			// 	return res.status(401).json('No permission');
+			// }
 			product.categoryId = req.body.categoryId;
 			product.name = req.body.name;
 			product.description = req.body.description;
@@ -583,7 +583,7 @@ class ProductController {
 			if (product.save()) {
 				return res.status(200).json(product);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -602,7 +602,7 @@ class ProductController {
 			if (product.save()) {
 				return res.status(200).json(product);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
