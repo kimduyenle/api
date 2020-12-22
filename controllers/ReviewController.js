@@ -1,7 +1,9 @@
-const _ = require('lodash');
-const models = require('../models');
-const paginate = require('../utils/paginate');
-const getUserInfo = require('../utils/getUserInfo');
+const _ = require("lodash");
+const models = require("../models");
+const paginate = require("../utils/paginate");
+const getUserInfo = require("../utils/getUserInfo");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 class ReviewController {
 	async getAllReviews(req, res) {
 		try {
@@ -10,16 +12,16 @@ class ReviewController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (!reviews) {
-				return res.status(200).json('Review not found');
+				return res.status(200).json("Review not found");
 			}
 			const data = {};
 			data.reviews = reviews;
@@ -31,21 +33,48 @@ class ReviewController {
 
 	async getReviewsPerPage(req, res) {
 		try {
+			let search = req.query.search || "";
+			search = search.toLowerCase();
 			const reviews = await models.Review.findAll({
-				where: { isDeleted: false },
+				where: {
+					isDeleted: false,
+					[Op.or]: [
+						{
+							"$product.name$": {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							"$user.username$": {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							content: {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							star: {
+								[Op.like]: `%${search}%`
+							}
+						}
+					]
+				},
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (!reviews) {
-				return res.status(200).json('Review not found');
+				return res.status(200).json("Review not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -63,23 +92,23 @@ class ReviewController {
 				where: { id: productId, isDeleted: false }
 			});
 			if (!product) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			const reviews = await models.Review.findAll({
 				where: { productId: productId, isDeleted: false },
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (!reviews) {
-				return res.status(200).json('Review not found');
+				return res.status(200).json("Review not found");
 			}
 			const data = {};
 			data.reviews = reviews;
@@ -99,16 +128,16 @@ class ReviewController {
 				include: [
 					{
 						model: models.User,
-						as: 'user'
+						as: "user"
 					},
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					}
 				]
 			});
 			if (!review) {
-				return res.status(200).json('Review not found');
+				return res.status(200).json("Review not found");
 			}
 			const data = {};
 			// review.dataValues.user = review.user.username;
@@ -128,13 +157,13 @@ class ReviewController {
 				where: { id: userId, isDeleted: false }
 			});
 			if (!user) {
-				return res.status(400).json('User not found');
+				return res.status(400).json("User not found");
 			}
 			const product = await models.Product.findOne({
 				where: { id: Number(req.body.productId), isDeleted: false }
 			});
 			if (!product) {
-				return res.status(400).json('Product not found');
+				return res.status(400).json("Product not found");
 			}
 
 			const data = req.body;
@@ -142,7 +171,7 @@ class ReviewController {
 
 			const newReview = await models.Review.create(data);
 			if (!newReview) {
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 			}
 			return res.status(201).json(newReview);
 		} catch (error) {
@@ -217,7 +246,7 @@ class ReviewController {
 			if (review.save()) {
 				return res.status(200).json(review);
 			}
-			return res.status(400).json('Error');
+			return res.status(400).json("Error");
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}

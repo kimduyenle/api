@@ -52,9 +52,11 @@ class CheckoutController {
 			console.log(
 				`Payouts Create Response: ${JSON.stringify(response.result)}`
 			);
+			return response.result.batch_header.payout_batch_id;
 		};
-		createPayouts();
-		return res.status(200).json("success");
+		const r = await createPayouts();
+		console.log({ r });
+		return res.status(200).json(r);
 	}
 }
 

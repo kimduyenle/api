@@ -1,6 +1,6 @@
-const _ = require('lodash');
-const models = require('../models');
-const paginate = require('../utils/paginate');
+const _ = require("lodash");
+const models = require("../models");
+const paginate = require("../utils/paginate");
 class OrderDetailController {
 	async getAllOrderDetails(req, res) {
 		try {
@@ -9,16 +9,16 @@ class OrderDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Order,
-						as: 'order'
+						as: "order"
 					}
 				]
 			});
 			if (!orderDetails) {
-				return res.status(200).json('Order detail not found');
+				return res.status(200).json("Order detail not found");
 			}
 			const data = {};
 			data.orderDetails = orderDetails;
@@ -35,16 +35,16 @@ class OrderDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Order,
-						as: 'order'
+						as: "order"
 					}
 				]
 			});
 			if (!orderDetails) {
-				return res.status(200).json('Order detail not found');
+				return res.status(200).json("Order detail not found");
 			}
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
@@ -62,23 +62,23 @@ class OrderDetailController {
 				where: { id: orderId, isDeleted: false }
 			});
 			if (!order) {
-				return res.status(200).json('Order not found');
+				return res.status(200).json("Order not found");
 			}
 			const orderDetails = await models.OrderDetail.findAll({
 				where: { orderId: orderId, isDeleted: false },
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Order,
-						as: 'order'
+						as: "order"
 					}
 				]
 			});
 			if (!orderDetails) {
-				return res.status(200).json('Order detail not found');
+				return res.status(200).json("Order detail not found");
 			}
 			const data = {};
 			data.orderDetails = orderDetails;
@@ -95,23 +95,23 @@ class OrderDetailController {
 				where: { id: productId, isDeleted: false }
 			});
 			if (!product) {
-				return res.status(200).json('Product not found');
+				return res.status(200).json("Product not found");
 			}
 			const orderDetails = await models.OrderDetail.findAll({
 				where: { productId: productId, isDeleted: false },
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Order,
-						as: 'order'
+						as: "order"
 					}
 				]
 			});
 			if (!orderDetails) {
-				return res.status(200).json('Order detail not found');
+				return res.status(200).json("Order detail not found");
 			}
 			const data = {};
 			data.orderDetails = orderDetails;
@@ -131,16 +131,16 @@ class OrderDetailController {
 				include: [
 					{
 						model: models.Product,
-						as: 'product'
+						as: "product"
 					},
 					{
 						model: models.Order,
-						as: 'order'
+						as: "order"
 					}
 				]
 			});
 			if (!orderDetail) {
-				return res.status(200).json('Order detail not found');
+				return res.status(200).json("Order detail not found");
 			}
 			const data = {};
 			orderDetail.dataValues.product = orderDetail.product.name;
@@ -158,23 +158,23 @@ class OrderDetailController {
 				where: { id: Number(req.body.productId), isDeleted: false }
 			});
 			if (!product) {
-				return res.status(400).json('Product not found');
+				return res.status(400).json("Product not found");
 			}
 			const order = await models.Order.findOne({
 				where: { id: Number(req.body.orderId), isDeleted: false }
 			});
 			if (!order) {
-				return res.status(400).json('Order not found');
+				return res.status(400).json("Order not found");
 			}
 
 			const data = req.body;
 
 			const newOrderDetail = await models.OrderDetail.create(data);
 			if (!newOrderDetail) {
-				return res.status(400).json('Error');
+				return res.status(400).json("Error");
 			}
-			product.quantity -= req.body.quantity;
-			product.sold += req.body.quantity;
+			product.quantity -= Number(req.body.quantity);
+			product.sold += Number(req.body.quantity);
 			product.save();
 			return res.status(201).json(newOrderDetail);
 		} catch (error) {

@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
 	OrderHistory.init(
 		{
 			orderId: DataTypes.INTEGER,
-			name: DataTypes.STRING
+			name: DataTypes.STRING,
+			note: DataTypes.STRING
 		},
 		{
 			sequelize,

@@ -8,7 +8,10 @@ class ProductController {
 	async getAllProducts(req, res) {
 		try {
 			const products = await models.Product.findAll({
-				where: { isDeleted: false },
+				where: {
+					isDeleted: false
+					// quantity: Sequelize.where(Sequelize.literal("quantity"), ">", 0)
+				},
 				include: [
 					{
 						model: models.User,
@@ -41,8 +44,40 @@ class ProductController {
 
 	async getProductsPerPage(req, res) {
 		try {
+			let search = req.query.search || "";
+			search = search.toLowerCase();
 			const products = await models.Product.findAll({
-				where: { isDeleted: false },
+				where: {
+					isDeleted: false,
+					[Op.or]: [
+						{
+							name: {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							quantity: {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							price: {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							"$category.name$": {
+								[Op.like]: `%${search}%`
+							}
+						},
+						{
+							"$user.username$": {
+								[Op.like]: `%${search}%`
+							}
+						}
+					]
+				},
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
@@ -133,7 +168,9 @@ class ProductController {
 			if (!category) {
 				return res.status(200).json("Category not found");
 			}
-			const search = req.query.search || "";
+			// const search = req.query.search || "";
+			let search = req.query.search || "";
+			search = search.toLowerCase();
 			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 0) {
@@ -142,9 +179,21 @@ class ProductController {
 						categoryId: categoryId,
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: Sequelize.literal("rand()"),
 					include: [
@@ -173,9 +222,21 @@ class ProductController {
 						categoryId: categoryId,
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["createdAt", "DESC"]],
 					include: [
@@ -204,9 +265,21 @@ class ProductController {
 						categoryId: categoryId,
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["sold", "DESC"]],
 					include: [
@@ -235,9 +308,21 @@ class ProductController {
 						categoryId: categoryId,
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["price", "DESC"]],
 					include: [
@@ -266,9 +351,21 @@ class ProductController {
 						categoryId: categoryId,
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["price", "ASC"]],
 					include: [
@@ -330,7 +427,9 @@ class ProductController {
 
 	async getProductsOfType(req, res) {
 		try {
-			const search = req.query.search || "";
+			// const search = req.query.search || "";
+			let search = req.query.search || "";
+			search = search.toLowerCase();
 			const typeId = Number(req.query.type) || 0;
 			let products = [];
 			if (typeId === 1) {
@@ -338,9 +437,21 @@ class ProductController {
 					where: {
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: Sequelize.literal("rand()"),
 					include: [
@@ -368,9 +479,21 @@ class ProductController {
 					where: {
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["createdAt", "DESC"]],
 					include: [
@@ -398,9 +521,21 @@ class ProductController {
 					where: {
 						isDeleted: false,
 						status: 1,
-						name: {
-							[Op.like]: `%${search}%`
-						}
+						quantity: {
+							[Op.gt]: 0
+						},
+						[Op.or]: [
+							{
+								name: {
+									[Op.like]: `%${search}%`
+								}
+							},
+							{
+								"$user.username$": {
+									[Op.like]: `%${search}%`
+								}
+							}
+						]
 					},
 					order: [["sold", "DESC"]],
 					include: [
@@ -610,25 +745,3 @@ class ProductController {
 }
 
 module.exports = new ProductController();
-
-// const paging = (products, atPage, numberPerPage) => {
-//   if (isNaN(atPage)) {
-//       return { error: 'Page is not a number' };
-//   }
-//   const totalPage = parseInt(products.length / numberPerPage) + 1;
-//   if (atPage > totalPage) {
-//       return { error: 'Current page is greater than total page' };
-//   }
-
-//   const startIndex = (atPage - 1) * numberPerPage;
-//   const endIndex = atPage * numberPerPage;
-//   const productsInPage = products.slice(startIndex, endIndex);
-
-//   result = {
-//       totalProducts: products.length,
-//       totalProductsInPage: productsInPage.length,
-//       totalPage: totalPage,
-//       productsInPage: productsInPage,
-//   };
-//   return result;
-// }

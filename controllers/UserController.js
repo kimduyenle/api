@@ -6,6 +6,8 @@ const config = require("../config/app");
 const auth = require("../utils/auth");
 const { bucket } = require("../utils/uploadImage");
 const paginate = require("../utils/paginate");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 class UserController {
 	async getProfile(req, res) {
 		try {
@@ -93,12 +95,50 @@ class UserController {
 
 	async getUsersPerPage(req, res) {
 		try {
+			let search = req.query.search || "";
+			search = search.toLowerCase();
 			const users = await models.User.findAll({
-				where: { isDeleted: false },
+				where: {
+					isDeleted: false,
+					[Op.or]: [
+						{
+							username: Sequelize.where(
+								Sequelize.fn("LOWER", Sequelize.col("username")),
+								"LIKE",
+								"%" + search + "%"
+							)
+						},
+						{
+							email: Sequelize.where(
+								Sequelize.fn("LOWER", Sequelize.col("email")),
+								"LIKE",
+								"%" + search + "%"
+							)
+						},
+						{
+							"$role.name$": {
+								[Op.like]: `%${search}%`
+							}
+						}
+						// {
+						// 	createdAt: Sequelize.where(
+						// 		Sequelize.fn(
+						// 			"date_format",
+						// 			Sequelize.col("createdAt"),
+						// 			"%Y-%m-%d"
+						// 		),
+						// 		"LIKE",
+						// 		"%" + search + "%"
+						// 	)
+						// }
+					]
+				},
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.Role,
-						as: "role"
+						as: "role",
+						attributes: ["name"]
 					}
 				]
 			});
@@ -160,14 +200,23 @@ class UserController {
 	async createUser(req, res, next) {
 		try {
 			// check user email exist
-			const user = await models.User.findOne({
+			const username = await models.User.findOne({
 				where: {
 					username: req.body.username,
 					isDeleted: false
 				}
 			});
-			if (user) {
+			if (username) {
 				return res.status(400).json("Tên tài khoản đã tồn tại");
+			}
+
+			const email = await models.User.findOne({
+				where: {
+					email: req.body.email
+				}
+			});
+			if (email) {
+				return res.status(400).json("Email đã tồn tại");
 			}
 
 			const data = req.body;
@@ -331,6 +380,17 @@ class UserController {
 				}
 			});
 			user.isDeleted = true;
+
+			const products = await models.Product.findAll({
+				where: {
+					userId: Number(req.params.id)
+				}
+			});
+
+			for (let i of products) {
+				i.isDeleted = true;
+				i.save();
+			}
 
 			if (user.save()) {
 				return res.status(200).json(user);

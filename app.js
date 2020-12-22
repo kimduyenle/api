@@ -1,4 +1,5 @@
 require("dotenv").config();
+const models = require("./models");
 const createError = require("http-errors");
 const express = require("express");
 
@@ -25,6 +26,8 @@ const reviewsRouter = require("./routes/reviews");
 const provincesRouter = require("./routes/provinces");
 const transRouter = require("./routes/trans");
 const transactionsRouter = require("./routes/transactions");
+const orderHistoriesRouter = require("./routes/orderHistories");
+const statisticsRouter = require("./routes/statistics");
 const checkoutRouter = require("./routes/checkout");
 
 const app = express();
@@ -59,6 +62,8 @@ app.use("/reviews", reviewsRouter);
 app.use("/provinces", provincesRouter);
 app.use("/transportation", transRouter);
 app.use("/transactions", transactionsRouter);
+app.use("/order-histories", orderHistoriesRouter);
+app.use("/statistics", statisticsRouter);
 app.use("/payout", checkoutRouter);
 
 app.post("/webhook", async (req, res) => {
@@ -68,12 +73,20 @@ app.post("/webhook", async (req, res) => {
 	const paypalTransactionId = req.body.resource.transaction_id;
 
 	console.log(type, paypalPayoutId, req.body);
+	var trans;
 	switch (type) {
 		case "PAYMENT.PAYOUTS-ITEM.SUCCEEDED":
 			// await transactionController.updateSuccessfulTransaction(
 			//   paypalPayoutId,
 			//   paypalTransactionId
 			// );
+			trans = await models.Transaction.findOne({
+				where: {
+					payoutId: paypalPayoutId
+				}
+			});
+			trans.status = "Thành công";
+			trans.save();
 			console.log(type, paypalPayoutId, req.body);
 			break;
 		case "PAYMENT.PAYOUTS-ITEM.UNCLAIMED":
@@ -88,6 +101,13 @@ app.post("/webhook", async (req, res) => {
 			//   paypalPayoutId,
 			//   paypalTransactionId
 			// );
+			trans = await models.Transaction.findOne({
+				where: {
+					payoutId: paypalPayoutId
+				}
+			});
+			trans.status = "Thất bại";
+			trans.save();
 			console.log(type, paypalPayoutId, req.body);
 			break;
 	}

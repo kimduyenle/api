@@ -47,5 +47,27 @@ class TransactionController {
 			return res.status(400).json(error.message);
 		}
 	}
+
+	async updateTransaction(req, res) {
+		try {
+			const trans = await models.Transaction.findOne({
+				where: {
+					id: Number(req.params.id)
+				}
+			});
+			if (!trans) {
+				return res.status(400).json("Transaction not found");
+			}
+
+			trans.status = req.body.status;
+
+			if (trans.save()) {
+				return res.status(200).json(trans);
+			}
+			return res.status(400).json("Error");
+		} catch (error) {
+			return res.status(400).json(error.message);
+		}
+	}
 }
 module.exports = new TransactionController();

@@ -2,11 +2,15 @@ const _ = require("lodash");
 const models = require("../models");
 const paginate = require("../utils/paginate");
 const getUserInfo = require("../utils/getUserInfo");
+const calTotal = require("../utils/calTotal");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 class OrderController {
 	async getAllOrders(req, res) {
 		try {
 			const orders = await models.Order.findAll({
 				where: { isDeleted: false },
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
@@ -26,9 +30,24 @@ class OrderController {
 						include: [
 							{
 								model: models.Product,
-								as: "product"
+								as: "product",
+								where: { isDeleted: false },
+								include: [
+									{
+										model: models.User,
+										as: "user"
+									},
+									{
+										model: models.Image,
+										as: "images"
+									}
+								]
 							}
 						]
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
@@ -45,8 +64,39 @@ class OrderController {
 
 	async getOrdersPerPage(req, res) {
 		try {
-			const orders = await models.Order.findAll({
-				where: { isDeleted: false },
+			let search = req.query.search || "";
+			search = search.toLowerCase();
+			const ownerId = parseInt(req.query.ownerId);
+			const status = parseInt(req.query.status);
+			const status2 = parseInt(req.query.status2);
+			let options = {
+				isDeleted: false,
+				[Op.or]: [
+					{
+						paymentMethod: {
+							[Op.like]: `%${search}%`
+						}
+					},
+					{
+						"$user.username$": {
+							[Op.like]: `%${search}%`
+						}
+					},
+					{
+						"$status.name$": {
+							[Op.like]: `%${search}%`
+						}
+					}
+				]
+			};
+			if (status && status2) {
+				options["statusId"] = {
+					[Op.or]: [status, status2]
+				};
+			}
+			let orders = await models.Order.findAll({
+				where: options,
+				order: [["createdAt", "DESC"]],
 				include: [
 					{
 						model: models.User,
@@ -62,17 +112,80 @@ class OrderController {
 					},
 					{
 						model: models.OrderDetail,
-						as: "orderDetails"
+						as: "orderDetails",
+						include: [
+							{
+								model: models.Product,
+								as: "product",
+								where: { isDeleted: false },
+								include: [
+									{
+										model: models.User,
+										as: "user"
+									},
+									{
+										model: models.Image,
+										as: "images"
+									}
+								]
+							}
+						]
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
 			if (!orders) {
 				return res.status(200).json("Order not found");
 			}
+
+			const startDate = req.query.startDate;
+			const endDate = req.query.endDate;
+
+			if (startDate && endDate) {
+				orders = orders.filter(order => {
+					const dd = ("0" + order.updatedAt.getDate()).slice(-2);
+					const mm = ("0" + (order.updatedAt.getMonth() + 1)).slice(-2);
+					const yyyy = order.updatedAt.getFullYear();
+					const d = `${yyyy}-${mm}-${dd}`;
+					if (
+						new Date(d).getTime() >= new Date(startDate).getTime() &&
+						new Date(d).getTime() <= new Date(endDate).getTime()
+					) {
+						return true;
+					}
+					return false;
+				});
+			}
+
+			if (ownerId) {
+				orders = orders.filter(order => {
+					if (order.orderDetails[0].product.userId === ownerId) {
+						return true;
+					}
+					return false;
+				});
+			}
+
+			const price = orders
+				.map(({ orderDetails }) => calTotal(orderDetails))
+				.reduce((sum, i) => sum + i, 0);
+			const shipCost = orders
+				.map(({ transportation }) => transportation.cost)
+				.reduce((sum, i) => sum + i, 0);
+			let revenue;
+			if (ownerId) {
+				revenue = price;
+			} else {
+				revenue = price + shipCost;
+			}
+
 			const atPage = parseInt(req.query.page) || 1;
 			const limit = parseInt(req.query.limit) || 10;
 			const result = paginate(orders, atPage, limit);
-			return res.status(200).json(result);
+			return res.status(200).json({ result, revenue });
 		} catch (error) {
 			return res.status(400).json(error.message);
 		}
@@ -134,6 +247,10 @@ class OrderController {
 								]
 							}
 						]
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
@@ -172,9 +289,12 @@ class OrderController {
 			if (!status) {
 				return res.status(200).json("Status not found");
 			}
-
+			let options = { isDeleted: false };
+			if (req.query.statusId) {
+				options["statusId"] = statusId;
+			}
 			const orders = await models.Order.findAll({
-				where: { statusId: statusId, isDeleted: false },
+				where: options,
 				order: [["createdAt", "DESC"]],
 				include: [
 					{
@@ -210,6 +330,10 @@ class OrderController {
 								]
 							}
 						]
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
@@ -256,6 +380,10 @@ class OrderController {
 					{
 						model: models.OrderDetail,
 						as: "orderDetails"
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
@@ -309,6 +437,10 @@ class OrderController {
 								]
 							}
 						]
+					},
+					{
+						model: models.OrderHistory,
+						as: "orderHistories"
 					}
 				]
 			});
